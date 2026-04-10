@@ -127,14 +127,21 @@ set -g @monochrome-night-tmux_show_music 1
 ```
 
 #### Netspeed widget
-![Snap netspeed](snaps/netspeed.png)
 
 ```bash
-set -g @monochrome-night-tmux_show_netspeed 1
-set -g @monochrome-night-tmux_netspeed_iface "wlan0" # Detected via default route
-set -g @monochrome-night-tmux_netspeed_showip 1      # Display IPv4 address (default 0)
-set -g @monochrome-night-tmux_netspeed_refresh 1     # Update interval in seconds (default 1)
+set -g @monochrome-night-tmux_show_netspeed 1               # show network iface speed
+set -g @monochrome-night-tmux_show_ip 1                     # display IPv4 address (default 0)
+set -g @monochrome-night-tmux_network_iface_mode default    # modes: default | specified | tun_or_default | tun_only
+set -g @monochrome-night-tmux_network_iface eth0            # only used if mode=specified
+set -g @monochrome-night-tmux_netspeed_refresh 1            # update interval in seconds (default 1)
 ```
+
+Modes:
+default - uses the interface that's configured as the default route
+specified - uses whichever interface is specified by `@monochrome-night-tmux_network_iface`
+tun_or_default - if a tun0 (vpn) interface is active, it will be used, otherwise the default route interface is used
+tun_only - if a tun0 (vpn) interface is active, it will be used, otherwise netspeed and IP will not be shown
+
 
 #### Path Widget
 
