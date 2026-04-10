@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-SELECTED_THEME="$(tmux show-option -gv @tokyo-night-tmux_theme)"
-TRANSPARENT_THEME="$(tmux show-option -gv @tokyo-night-tmux_transparent)"
+SELECTED_THEME="$(tmux show-option -gv @monochrome-night-tmux_theme)"
+TRANSPARENT_THEME="$(tmux show-option -gv @monochrome-night-tmux_transparent)"
 
 case $SELECTED_THEME in
 "storm")
@@ -52,8 +52,7 @@ case $SELECTED_THEME in
   )
   ;;
 
-*)
-  # Default to night theme
+"night")
   declare -A THEME=(
     ["background"]="#1A1B26"
     ["foreground"]="#a9b1d6"
@@ -74,6 +73,31 @@ case $SELECTED_THEME in
     ["bred"]="#ff9e64"
     ["bwhite"]="#787c99"
     ["byellow"]="#e0af68"
+  )
+  ;;
+
+*)
+  # Default to monochrome theme
+  declare -A THEME=(
+    ["background"]="#1C1C1C"
+    ["foreground"]="#F2F2F2"
+    ["black"]="#4E4E4E"
+    ["blue"]="#87AFFF"
+    ["cyan"]="#87D7FF"
+    ["green"]="#5FD7D7"
+    ["magenta"]="#AF87FF"
+    ["red"]="#FF8787"
+    ["white"]="#AFD7FF"
+    ["yellow"]="#D7AF5F"
+
+    ["bblack"]="#303030"
+    ["bblue"]="#87AFFF"
+    ["bcyan"]="#87D7FF"
+    ["bgreen"]="#5FAFAF"
+    ["bmagenta"]="#AF87FF"
+    ["bred"]="#FFAF5F"
+    ["bwhite"]="#878787"
+    ["byellow"]="#D7AF5F"
   )
   ;;
 esac

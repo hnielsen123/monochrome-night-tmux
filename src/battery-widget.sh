@@ -5,14 +5,14 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 . "${ROOT_DIR}/lib/coreutils-compat.sh"
 
 # Check if the battery widget is enabled
-SHOW_BATTERY_WIDGET=$(tmux show-option -gv @tokyo-night-tmux_show_battery_widget 2>/dev/null)
+SHOW_BATTERY_WIDGET=$(tmux show-option -gv @monochrome-night-tmux_show_battery_widget 2>/dev/null)
 if [ "${SHOW_BATTERY_WIDGET}" != "1" ]; then
   exit 0
 fi
 
 # Get values from tmux config or set defaults
-BATTERY_NAME=$(tmux show-option -gv @tokyo-night-tmux_battery_name 2>/dev/null)
-BATTERY_LOW=$(tmux show-option -gv @tokyo-night-tmux_battery_low_threshold 2>/dev/null)
+BATTERY_NAME=$(tmux show-option -gv @monochrome-night-tmux_battery_name 2>/dev/null)
+BATTERY_LOW=$(tmux show-option -gv @monochromw-night-tmux_battery_low_threshold 2>/dev/null)
 RESET="#[fg=brightwhite,bg=#15161e,nobold,noitalics,nounderscore,nodim]"
 
 DISCHARGING_ICONS=("󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹")
