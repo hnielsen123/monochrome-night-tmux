@@ -54,7 +54,7 @@ Check documentation for installing on other operating systems.
 In your `tmux.conf`:
 
 ```bash
-set -g @plugin "janoamaral/tokyo-night-tmux"
+set -g @plugin "hnielsen123/monochrome-night-tmux"
 ```
 
 ## Configuration
@@ -137,10 +137,10 @@ set -g @monochrome-night-tmux_netspeed_refresh 1            # update interval in
 ```
 
 Modes:
-default - uses the interface that's configured as the default route
-specified - uses whichever interface is specified by `@monochrome-night-tmux_network_iface`
-tun_or_default - if a tun0 (vpn) interface is active, it will be used, otherwise the default route interface is used
-tun_only - if a tun0 (vpn) interface is active, it will be used, otherwise netspeed and IP will not be shown
+- default - uses the interface that's configured as the default route
+- specified - uses whichever interface is specified by `@monochrome-night-tmux_network_iface`
+- tun_or_default - if a tun0 (vpn) interface is active, it will be used, otherwise the default route interface is used
+- tun_only - if a tun0 (vpn) interface is active, it will be used, otherwise netspeed and IP will not be shown
 
 
 #### Path Widget
