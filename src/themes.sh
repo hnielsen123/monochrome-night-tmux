@@ -79,25 +79,25 @@ case $SELECTED_THEME in
 *)
   # Default to monochrome theme
   declare -A THEME=(
-    ["background"]="#1C1C1C"
-    ["foreground"]="#F2F2F2"
-    ["black"]="#4E4E4E"
-    ["blue"]="#87AFFF"
-    ["cyan"]="#87D7FF"
-    ["green"]="#5FD7D7"
-    ["magenta"]="#AF87FF"
-    ["red"]="#FF8787"
-    ["white"]="#AFD7FF"
-    ["yellow"]="#D7AF5F"
+    ["background"]="#1c1c1c"
+    ["foreground"]="#f2f2f2"
+    ["black"]="#4e4e4e"
+    ["blue"]="#87afff"
+    ["cyan"]="#87d7ff"
+    ["green"]="#5fd7d7"
+    ["magenta"]="#af87ff"
+    ["red"]="#ff8787"
+    ["white"]="#afd7ff"
+    ["yellow"]="#d7af5f"
 
     ["bblack"]="#303030"
-    ["bblue"]="#87AFFF"
-    ["bcyan"]="#87D7FF"
-    ["bgreen"]="#5FAFAF"
-    ["bmagenta"]="#AF87FF"
-    ["bred"]="#FFAF5F"
+    ["bblue"]="#87afff"
+    ["bcyan"]="#87d7ff"
+    ["bgreen"]="#5fafaf"
+    ["bmagenta"]="#af87ff"
+    ["bred"]="#ffaf5f"
     ["bwhite"]="#878787"
-    ["byellow"]="#D7AF5F"
+    ["byellow"]="#d7af5f"
   )
   ;;
 esac
@@ -108,7 +108,7 @@ if [ "${TRANSPARENT_THEME}" == 1 ]; then
 fi
 
 THEME['ghgreen']="#3fb950"
-THEME['ghmagenta']="#A371F7"
+THEME['ghmagenta']="#a371f7"
 THEME['ghred']="#d73a4a"
 THEME['ghyellow']="#d29922"
 
