@@ -4,53 +4,121 @@
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 . "${ROOT_DIR}/lib/coreutils-compat.sh"
 
-# Grab global variable for showing datetime widget, only hide if explicitly disabled
-SHOW_DATETIME=$(tmux show-option -gv @monochrome-night-tmux_show_datetime 2>/dev/null)
-if [[ $SHOW_DATETIME == "0" ]]; then
+# Check if the battery widget is enabled
+SHOW_BATTERY_WIDGET=$(tmux show-option -gv @monochrome-night-tmux_show_battery_widget 2>/dev/null)
+if [ "${SHOW_BATTERY_WIDGET}" != "1" ]; then
   exit 0
 fi
 
-CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source $CURRENT_DIR/themes.sh
+# Get values from tmux config or set defaults
+BATTERY_NAME=$(tmux show-option -gv @monochrome-night-tmux_battery_name 2>/dev/null)
+BATTERY_LOW=$(tmux show-option -gv @monochrome-night-tmux_battery_low_threshold 2>/dev/null)
+RESET="#[fg=brightwhite,bg=#15161e,nobold,noitalics,nounderscore,nodim]"
 
-# Assign values based on user config
-date_format=$(tmux show-option -gv @monochrome-night-tmux_date_format 2>/dev/null)
-time_format=$(tmux show-option -gv @monochrome-night-tmux_time_format 2>/dev/null)
+DISCHARGING_ICONS=("󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹")
+CHARGING_ICONS=("󰢜" "󰂆" "󰂇" "󰂈" "󰢝" "󰂉" "󰢞" "󰂊" "󰂋" "󰂅")
+NOT_CHARGING_ICON="󰚥"
+NO_BATTERY_ICON="󱉝"
+DEFAULT_BATTERY_LOW=21
 
-date_string=""
-time_string=""
-
-if [[ $date_format == "YMD" ]]; then
-  # Year Month Day date format
-  date_string=" %Y-%m-%d"
-elif [[ $date_format == "MDY" ]]; then
-  # Month Day Year date format
-  date_string=" %m-%d-%Y"
-elif [[ $date_format == "DMY" ]]; then
-  # Day Month Year date format
-  date_string=" %d-%m-%Y"
-elif [[ $date_format == "hide" ]]; then
-  # Day Month Year date format
-  date_string=""
+if [[ "$(uname)" == "Darwin" ]]; then
+  default_battery_name="InternalBattery-0"
 else
-  # Default to MDY date format if not specified
-  date_string=" %m-%d-%Y"
+  default_battery_name="BAT1"
 fi
 
-if [[ $time_format == "12H" ]]; then
-  # 12-hour format with AM/PM
-  time_string="%I:%M %p "
-elif [[ $time_format == "hide" ]]; then
-  # 24-hour format
-  time_string=""
+BATTERY_NAME="${BATTERY_NAME:-$default_battery_name}"
+BATTERY_LOW="${BATTERY_LOW:-$DEFAULT_BATTERY_LOW}"
+
+# Check if battery exists
+battery_exists() {
+  case "$(uname)" in
+  "Darwin")
+    pmset -g batt | grep -q "$BATTERY_NAME"
+    ;;
+  "Linux")
+    [[ -d "/sys/class/power_supply/$BATTERY_NAME" ]]
+    ;;
+  "CYGWIN" | "MINGW" | "MSYS" | "Windows_NT")
+    WMIC PATH Win32_Battery Get EstimatedChargeRemaining 2>&1 | grep -q "EstimatedChargeRemaining"
+    ;;
+  *)
+    return 1
+    ;;
+  esac
+}
+
+# Exit if no battery is found
+if ! battery_exists; then
+  exit 0
+fi
+
+# Get battery stats for different OS
+get_battery_stats() {
+  local battery_name=$1
+  local battery_status=""
+  local battery_percentage=""
+
+  case "$(uname)" in
+  "Darwin")
+    pmstat=$(pmset -g batt | grep "$battery_name")
+    battery_status=$(echo "$pmstat" | awk '{print $4}' | sed 's/[^a-zA-Z]*//g')
+    battery_percentage=$(echo "$pmstat" | awk '{print $3}' | sed 's/[^0-9]*//g')
+    ;;
+  "Linux")
+    if [[ -f "/sys/class/power_supply/${battery_name}/status" && -f "/sys/class/power_supply/${battery_name}/capacity" ]]; then
+      battery_status=$(<"/sys/class/power_supply/${battery_name}/status")
+      battery_percentage=$(<"/sys/class/power_supply/${battery_name}/capacity")
+    else
+      battery_status="Unknown"
+      battery_percentage="0"
+    fi
+    ;;
+  "CYGWIN" | "MINGW" | "MSYS" | "Windows_NT")
+    battery_percentage=$(WMIC PATH Win32_Battery Get EstimatedChargeRemaining | grep -Eo '[0-9]+')
+    [[ -n $battery_percentage ]] && battery_status="Discharging" || battery_status="Unknown"
+    ;;
+  *)
+    battery_status="UnsupportedOS"
+    battery_percentage=0
+    ;;
+  esac
+
+  echo "$battery_status $battery_percentage"
+}
+
+# Fetch the battery status and percentage
+read -r BATTERY_STATUS BATTERY_PERCENTAGE < <(get_battery_stats "$BATTERY_NAME")
+
+# Ensure percentage is a number
+if ! [[ $BATTERY_PERCENTAGE =~ ^[0-9]+$ ]]; then
+  BATTERY_PERCENTAGE=0
+fi
+
+# Determine icon and color based on battery status and percentage
+case "$BATTERY_STATUS" in
+"Charging" | "Charged" | "charging" | "Charged")
+  ICON="${CHARGING_ICONS[$((BATTERY_PERCENTAGE / 10))]}"
+  ;;
+"Discharging" | "discharging")
+  ICON="${DISCHARGING_ICONS[$((BATTERY_PERCENTAGE / 10))]}"
+  ;;
+"Full" | "charged" | "full" | "AC")
+  ICON="$NOT_CHARGING_ICON"
+  ;;
+*)
+  ICON="$NO_BATTERY_ICON"
+  ;;
+esac
+
+# Set color based on battery percentage
+if [[ $BATTERY_PERCENTAGE -lt $BATTERY_LOW ]]; then
+  color="#[fg=red,bg=default,bold]"
+elif [[ $BATTERY_PERCENTAGE -ge 100 ]]; then
+  color="#[fg=green,bg=default]"
 else
-  # Default to 12-hour AM/PM format if not specified
-  time_string="%I:%M %p "
+  color="#[fg=yellow,bg=default]"
 fi
 
-separator=""
-if [[ $date_string && $time_string ]]; then
-  separator="❬ "
-fi
-
-echo "$RESET#[fg=${THEME[foreground]},bg=${THEME[bblack]}]$date_string $separator$time_string"
+# Print the battery status with some extra spaces for padding
+echo "${color}░ ${ICON}${RESET} #[bg=default] ${BATTERY_PERCENTAGE}% "
