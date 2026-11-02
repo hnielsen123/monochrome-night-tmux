@@ -184,6 +184,10 @@ Same option names as tmux:
   ```
   The default regex is `TAP-Windows|Wintun|WireGuard|OpenVPN|PANGP|AnyConnect|Fortinet|VPN`.
 - `_network_iface` takes the Windows adapter name, e.g. `Wi-Fi` or `Ethernet 3`. The widget also shows the adapter name instead of `tun0`.
+- Window names show the running command (`#{pane_current_command}`) instead of `#W`. psmux's automatic-rename leaves `#W` stuck on the last program after it exits (e.g. `nvim`), while `pane_current_command` falls back to the shell. Manual renames don't show in this mode. To use `#W` instead:
+ ```bash
+ set -g @monochrome-night-tmux_window_name name   # command | name (default: command), psmux only
+ ```
 - `_netspeed_refresh` is ignored. The network widget updates on psmux's `status-interval` hook, and netspeed is the delta since the previous poll.
 
 ### Not ported

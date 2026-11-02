@@ -54,14 +54,17 @@ $activeIcon = if ($o['active_terminal_icon']) { $o['active_terminal_icon'] } els
 # Matches the bash version's actual behaviour: extra space only when explicitly 0.
 $space      = if ($o['window_tidy_icons'] -eq '0') { ' ' } else { '' }
 $ssh        = Glyph 0xF08C0
+# psmux's #W sticks on the last program after it exits; pane_current_command
+# falls back to the shell. Set @monochrome-night-tmux_window_name to 'name' for #W.
+$winName    = if ($o['window_name'] -eq 'name') { '#W' } else { '#{pane_current_command}' }
 
 function New-IconFormat([string]$Default) {
     # On Windows the command may report as ssh or ssh.exe.
     "#{?#{==:#{pane_current_command},ssh},$ssh ,#{?#{==:#{pane_current_command},ssh.exe},$ssh ,$Default $space}}"
 }
 
-Invoke-Mux set -g window-status-current-format "$RESET#[fg=$fg,bg=$($t.bblack)] $(New-IconFormat $activeIcon)#[fg=$fg,bold,nodim]$winNum#W#[nobold]#{?window_last_flag, , }"
-Invoke-Mux set -g window-status-format "$RESET#[fg=$fg] $(New-IconFormat $termIcon)$RESET$winNum#W#[nobold,dim]#[fg=$($t.yellow)]#{?window_last_flag, , }"
+Invoke-Mux set -g window-status-current-format "$RESET#[fg=$fg,bg=$($t.bblack)] $(New-IconFormat $activeIcon)#[fg=$fg,bold,nodim]$winNum$winName#[nobold]#{?window_last_flag, , }"
+Invoke-Mux set -g window-status-format "$RESET#[fg=$fg] $(New-IconFormat $termIcon)$RESET$winNum$winName#[nobold,dim]#[fg=$($t.yellow)]#{?window_last_flag, , }"
 Invoke-Mux set -g window-status-separator ''
 
 # --- Left: prefix indicator + hostname ---------------------------------------
